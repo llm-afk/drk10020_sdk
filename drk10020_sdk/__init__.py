@@ -15,7 +15,7 @@ _lock = threading.RLock()
 
 def _connection():
     if _device is None:
-        raise RuntimeError("call drk10020.open() first")
+        raise RuntimeError("call drk10020_sdk.open() first")
     return _device
 
 

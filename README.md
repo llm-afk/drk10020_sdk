@@ -1,4 +1,4 @@
-# drk10020
+# drk10020_sdk
 
 DRK10020 电源 USB 虚拟串口 Python SDK，Python 3.11+，115200／8N1。
 常规收发最高固定 20 Hz，相邻发送至少 50 ms，无后台控制线程。
@@ -9,23 +9,23 @@ python -m unittest discover -s tests -v
 ```
 
 ```python
-import drk10020
+import drk10020_sdk
 
-info = drk10020.open()  # 自动筛选 CH340 并查询型号；多台时指定 open("COM9")
+info = drk10020_sdk.open()  # 自动筛选 CH340 并查询型号；多台时指定 open("COM9")
 try:
-    drk10020.disable()
-    drk10020.exchange(5.0, 0.1)  # V、限流 A，保持当前输出开关状态
-    drk10020.enable()
+    drk10020_sdk.disable()
+    drk10020_sdk.exchange(5.0, 0.1)  # V、限流 A，保持当前输出开关状态
+    drk10020_sdk.enable()
     for _ in range(100):
-        sample = drk10020.exchange(5.0, 0.1)
+        sample = drk10020_sdk.exchange(5.0, 0.1)
         print(sample["voltage"], sample["current"], sample["fault"])
-        events = drk10020.drain_events()  # 由调用脚本选择、完整保存
+        events = drk10020_sdk.drain_events()  # 由调用脚本选择、完整保存
 finally:
     try:
-        drk10020.disable()  # 显式请求关闭输出，异常应交给调用方处理
+        drk10020_sdk.disable()  # 显式请求关闭输出，异常应交给调用方处理
     finally:
-        drk10020.close()
-        remaining_events = drk10020.drain_events()
+        drk10020_sdk.close()
+        remaining_events = drk10020_sdk.drain_events()
 ```
 
 | 接口 | 行为 |

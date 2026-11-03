@@ -6,10 +6,10 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-import drk10020
-from drk10020.protocol import (ProtocolError, Settings, StreamDecoder,
+import drk10020_sdk
+from drk10020_sdk.protocol import (ProtocolError, Settings, StreamDecoder,
                               WriteUncertainError, parse_measurement, parse_settings)
-from drk10020.transport import Connection
+from drk10020_sdk.transport import Connection
 
 
 def measurement(settings=None, *, fault=0, samples=None):
@@ -328,7 +328,7 @@ class ConnectionTests(unittest.TestCase):
 
 class ModuleTests(unittest.TestCase):
     def tearDown(self):
-        drk10020.close(); drk10020.drain_events()
+        drk10020_sdk.close(); drk10020_sdk.drain_events()
 
     def connect_factory(self, name, timeout):
         clock = Clock(); serial = FakeSerial(clock)
@@ -338,13 +338,13 @@ class ModuleTests(unittest.TestCase):
         ports = [SimpleNamespace(device="COM9",vid=0x1a86,pid=0x7523),
                  SimpleNamespace(device="COM4",vid=0x451,pid=0xbef3)]
         with patch("serial.tools.list_ports.comports", return_value=ports), \
-             patch("drk10020.Connection", side_effect=self.connect_factory) as maker:
-            self.assertEqual(drk10020.open()["port"], "COM9")
+             patch("drk10020_sdk.Connection", side_effect=self.connect_factory) as maker:
+            self.assertEqual(drk10020_sdk.open()["port"], "COM9")
             maker.assert_called_once_with("COM9", 1.)
-            drk10020.exchange(5., .1)
-            drk10020.close()
-            self.assertTrue(drk10020.drain_events())
-            self.assertEqual(drk10020.drain_events(), [])
+            drk10020_sdk.exchange(5., .1)
+            drk10020_sdk.close()
+            self.assertTrue(drk10020_sdk.drain_events())
+            self.assertEqual(drk10020_sdk.drain_events(), [])
 
     def test_multiple_devices_not_chosen_arbitrarily(self):
         ports = [SimpleNamespace(device=name,vid=0x1a86,pid=0x7523) for name in ("COM9","COM10")]
@@ -352,22 +352,22 @@ class ModuleTests(unittest.TestCase):
         def make(name, timeout):
             device = self.connect_factory(name, timeout); made.append(device); return device
         with patch("serial.tools.list_ports.comports", return_value=ports), \
-             patch("drk10020.Connection", side_effect=make):
-            with self.assertRaises(RuntimeError): drk10020.open()
+             patch("drk10020_sdk.Connection", side_effect=make):
+            with self.assertRaises(RuntimeError): drk10020_sdk.open()
         self.assertTrue(all(d.closed for d in made))
-        self.assertTrue(drk10020.drain_events())
+        self.assertTrue(drk10020_sdk.drain_events())
 
     def test_no_device_no_serial_open(self):
         with patch("serial.tools.list_ports.comports", return_value=[]), \
-             patch("drk10020.Connection") as maker:
-            with self.assertRaises(RuntimeError): drk10020.open()
+             patch("drk10020_sdk.Connection") as maker:
+            with self.assertRaises(RuntimeError): drk10020_sdk.open()
             maker.assert_not_called()
 
     def test_closed_evidence_survives_reopen(self):
-        with patch("drk10020.Connection", side_effect=self.connect_factory):
-            drk10020.open("COM9"); drk10020.close()
-            drk10020.open("COM9"); drk10020.close()
-        events = drk10020.drain_events()
+        with patch("drk10020_sdk.Connection", side_effect=self.connect_factory):
+            drk10020_sdk.open("COM9"); drk10020_sdk.close()
+            drk10020_sdk.open("COM9"); drk10020_sdk.close()
+        events = drk10020_sdk.drain_events()
         self.assertEqual(len({e["connection_id"] for e in events}), 2)
 
 

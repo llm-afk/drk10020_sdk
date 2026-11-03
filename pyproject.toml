@@ -3,7 +3,7 @@ requires = ["setuptools>=70.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "drk10020"
+name = "drk10020_sdk"
 version = "0.1.0"
 description = "Synchronous DRK10020 USB serial control with complete receive delivery"
 readme = "README.md"
@@ -11,5 +11,5 @@ requires-python = ">=3.11"
 dependencies = ["pyserial>=3.5,<4"]
 
 [tool.setuptools]
-packages = ["drk10020"]
+packages = ["drk10020_sdk"]
 
